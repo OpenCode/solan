@@ -2,23 +2,33 @@
 # License GPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import click
-import http.server
-import os
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from os import chdir
+from socket import gethostname,gethostbyname
 
 
 @click.command()
-@click.option('-p','--port', type=int, default=8000, show_default=True)
-@click.argument('directory', type=click.Path(exists=True))
+@click.option('-p','--port', type=int,
+              default=8000, show_default=True)
+@click.argument('directory',
+                type=click.Path(exists=True))
 def run(directory, port):
     click.echo('Sharing {}'.format(directory))
-    os.chdir(directory)
+    # ----- Change directory
+    chdir(directory)
     click.echo('Running the server')
-    solan_server = http.server.HTTPServer
-    solan_handler = http.server.SimpleHTTPRequestHandler
+    # ----- Define server
+    solan_server = HTTPServer
+    solan_handler = SimpleHTTPRequestHandler
     solan_server_address = ('', port)
-    httpd = solan_server(solan_server_address, solan_handler)
+    httpd = solan_server(
+        solan_server_address, solan_handler)
+    # ----- Get local IP
+    hostname = gethostname() 
+    ip = gethostbyname(hostname) 
     click.echo(
-            "Service on {url}:{port}".format(
-                url='XXXXXX',
-                port=port))
+        "Service on {ip}:{port}".format(
+            ip=ip,
+            port=port))
+    # ----- Run server
     httpd.serve_forever()
