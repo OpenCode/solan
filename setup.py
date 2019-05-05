@@ -4,27 +4,31 @@
 from setuptools import setup
 
 
-setup(name='solan',
-      version='0.1.0',
-      description='Solan',
-      long_description=open('README.rst').read(),
-      url='https://github.com/OpenCode/solan',
-      author='Francesco Apruzzese',
-      author_email='cescoap@gmail.com',
-      classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
-          'Intended Audience :: Developers',
-          'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
-          'Topic :: Communications :: File Sharing'
-          'Programming Language :: Python :: 3.6',
-      ],
-      keywords='solan share sharing lan',
-      license='AGPL',
-      packages=['solan'],
-      install_requires=[
-          'click',
-      ],
-      entry_points = {
+setup(
+    name='solan',
+    version='0.1.0',
+    description='Solan',
+    long_description=open('README.rst').read(),
+    long_description_content_type='text/x-rst',
+    url='https://github.com/OpenCode/solan',
+    author='Francesco Apruzzese',
+    author_email='cescoap@gmail.com',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Topic :: Communications :: File Sharing',
+        'Programming Language :: Python :: 3.6',
+        ],
+    keywords='solan share sharing lan',
+    license='AGPL',
+    packages=['solan'],
+    install_requires=[
+        'click',
+        ],
+    entry_points = {
         'console_scripts': ['solan=solan.core:run'],
         },
-    zip_safe=False)
+    include_package_data=True,
+    zip_safe=False,
+    )
