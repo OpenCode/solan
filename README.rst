@@ -12,11 +12,6 @@ Install Solan from Pipy
 
     $ pip3 install solan
 
-Clone repository on your system and install it
-
-::
-
-    $ python3 setup.py install
 
 Usage
 -----
