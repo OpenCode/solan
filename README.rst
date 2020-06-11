@@ -32,3 +32,12 @@ or you can define a different port (standard is 8000)
 ::
 
     $ solan ~/Example/Share -p 8004
+
+Remote access
+=============
+
+Enable remote with -r parameter
+
+::
+
+    $ solan -r /tmp

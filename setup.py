@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='solan',
-    version='0.1.0',
+    version='0.1.1',
     description='Solan',
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
@@ -19,12 +19,14 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Topic :: Communications :: File Sharing',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         ],
     keywords='solan share sharing lan',
     license='AGPL',
     packages=['solan'],
     install_requires=[
         'click',
+        'pyngrok',
         ],
     entry_points = {
         'console_scripts': ['solan=solan.core:run'],
