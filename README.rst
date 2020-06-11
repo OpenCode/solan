@@ -6,6 +6,12 @@ Solan is a simple and basic system to share files with other people in the same 
 Installation
 ------------
 
+Install Solan from Pipy
+
+::
+
+    $ pip3 install solan
+
 Clone repository on your system and install it
 
 ::
