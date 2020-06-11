@@ -16,7 +16,8 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'License :: OSI Approved :: '
+        'GNU Affero General Public License v3 or later (AGPLv3+)',
         'Topic :: Communications :: File Sharing',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
@@ -28,7 +29,7 @@ setup(
         'click',
         'pyngrok',
         ],
-    entry_points = {
+    entry_points={
         'console_scripts': ['solan=solan.core:run'],
         },
     include_package_data=True,
