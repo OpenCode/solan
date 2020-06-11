@@ -4,18 +4,18 @@
 import click
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from os import chdir
-from socket import gethostname,gethostbyname
+from socket import gethostname, gethostbyname
 from pyngrok import ngrok
 
 
 @click.command()
-@click.option('-p','--port', type=int,
+@click.option('-p', '--port', type=int,
               default=8000, show_default=True)
-@click.option('-r','--remote', is_flag=True)
+@click.option('-r', '--remote', is_flag=True)
 @click.argument('directory',
                 type=click.Path(exists=True))
 def run(directory, port, remote):
-    click.echo('Sharing {}'.format(directory))
+    click.echo(f'Sharing {directory}')
     # ----- Change directory
     chdir(directory)
     click.echo('Running the server')
@@ -28,14 +28,10 @@ def run(directory, port, remote):
     # ----- Get local IP
     hostname = gethostname()
     ip = gethostbyname(hostname)
-    click.echo(
-        "Local service active on {ip}:{port}".format(
-            ip=ip,
-            port=port))
+    click.echo(f'Local service active on {ip}:{port}')
+    # ----- Enable remote access
     if remote:
         public_url = ngrok.connect(port)
-        click.echo(
-            "Remote service active on {url}".format(
-                url=public_url))
+        click.echo('Remote service active on {public_url}')
     # ----- Run server
     httpd.serve_forever()
