@@ -29,6 +29,10 @@ Enable remote with -r parameter
 
     $ solan -r /tmp
 
+#### In action
+
+![solan usage](readme/solan-0.1.1.gif "Solan Usage")
+
 ## Support
 
 <a href="https://www.buymeacoffee.com/scapigliato" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/arial-black.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
