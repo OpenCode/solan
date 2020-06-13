@@ -32,6 +32,6 @@ def run(directory, port, remote):
     # ----- Enable remote access
     if remote:
         public_url = ngrok.connect(port)
-        click.echo('Remote service active on {public_url}')
+        click.echo(f'Remote service active on {public_url}')
     # ----- Run server
     httpd.serve_forever()
