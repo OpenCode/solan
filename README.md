@@ -4,7 +4,11 @@ Solan is a simple and basic system to share files with other people
 
 ## Installation
 
-Install Solan as a command-line tool with [uv](https://docs.astral.sh/uv/)
+Install Solan from Pypi
+
+    $ pipx install solan
+
+or install Solan as a command-line tool with [uv](https://docs.astral.sh/uv/)
 
     $ uv tool install solan
 
@@ -41,7 +45,7 @@ Enable remote with -r parameter
 
 #### In action
 
-![solan usage](readme/solan-0.1.1.gif "Solan Usage")
+![solan usage](readme/solan-0.2.0.png "Solan Usage")
 
 ## Support
 
