@@ -45,7 +45,7 @@ Enable remote with -r parameter
 
 #### In action
 
-![solan usage](readme/solan-0.2.0.png "Solan Usage")
+![solan usage](https://raw.githubusercontent.com/OpenCode/solan/master/readme/solan-0.2.0.png "Solan Usage")
 
 ## Support
 
