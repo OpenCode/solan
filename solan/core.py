@@ -1,6 +1,7 @@
 # Copyright 2019 Francesco Apruzzese <cescoap@gmail.com>
 # License GPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+from errno import EADDRINUSE
 from http.server import HTTPServer
 from os import chdir
 from socket import AF_INET, SOCK_DGRAM, socket
@@ -34,7 +35,12 @@ def run(directory, port, remote):
     solan_server = HTTPServer
     solan_handler = SolanHandler
     solan_server_address = ("", port)
-    httpd = solan_server(solan_server_address, solan_handler)
+    try:
+        httpd = solan_server(solan_server_address, solan_handler)
+    except OSError as error:
+        if error.errno != EADDRINUSE:
+            raise
+        raise click.ClickException(f"Address already in use: port {port}") from None
     # ----- Get local IP
     ip = get_local_ip()
     click.echo(f"Local service active on http://{ip}:{port}")
