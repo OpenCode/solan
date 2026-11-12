@@ -47,6 +47,12 @@ PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · Solan</title>
+<script>
+try {{
+  const t = localStorage.getItem('solan-theme');
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+}} catch (e) {{}}
+</script>
 <style>
 :root {{
   --bg: #f5f6fa; --card: #fff; --text: #1f2330; --muted: #6b7185;
@@ -54,12 +60,19 @@ PAGE = """<!doctype html>
   --folder: #f0b429; --image: #e5508a; --video: #8e5cf0;
   --audio: #12a594; --archive: #c97a2b; --doc: #4f6bed;
   --code: #2f9e44; --file: #8a90a3;
+  color-scheme: light;
 }}
 @media (prefers-color-scheme: dark) {{
-  :root {{
+  :root:not([data-theme=light]) {{
     --bg: #14161d; --card: #1c1f29; --text: #e8eaf2; --muted: #9298ab;
     --border: #2a2e3b; --hover: #242836; --accent: #7d93ff;
+    color-scheme: dark;
   }}
+}}
+:root[data-theme=dark] {{
+  --bg: #14161d; --card: #1c1f29; --text: #e8eaf2; --muted: #9298ab;
+  --border: #2a2e3b; --hover: #242836; --accent: #7d93ff;
+  color-scheme: dark;
 }}
 * {{ box-sizing: border-box; }}
 [hidden] {{ display: none !important; }}
@@ -76,6 +89,16 @@ header {{ display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }}
 }}
 h1 {{ font-size: 20px; margin: 0; }}
 .sub {{ color: var(--muted); font-size: 13px; }}
+.theme {{
+  margin-left: auto; width: 40px; height: 40px; border-radius: 10px; flex: none;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+}}
+.theme:hover {{ color: var(--accent); }}
+.theme svg {{ width: 20px; height: 20px; }}
+.theme .sun {{ display: none; }}
+.dark .theme .sun {{ display: block; }}
+.dark .theme .moon {{ display: none; }}
 .bar {{
   display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
   margin-bottom: 12px;
@@ -138,6 +161,13 @@ footer {{ margin-top: 16px; color: var(--muted); font-size: 12px; text-align: ce
       <h1>{title}</h1>
       <div class="sub">{summary}</div>
     </div>
+    <button class="theme" id="theme" type="button">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4
+           1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
   </header>
   <div class="bar">
     <nav class="crumbs">{crumbs}</nav>
@@ -154,6 +184,22 @@ footer {{ margin-top: 16px; color: var(--muted); font-size: 12px; text-align: ce
   <footer>Shared with Solan</footer>
 </div>
 <script>
+const root = document.documentElement;
+const btn = document.getElementById('theme');
+const systemDark = matchMedia('(prefers-color-scheme: dark)');
+function syncTheme() {{
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : systemDark.matches;
+  root.classList.toggle('dark', dark);
+  const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+  btn.title = label; btn.setAttribute('aria-label', label);
+}}
+btn.addEventListener('click', () => {{
+  root.dataset.theme = root.classList.contains('dark') ? 'light' : 'dark';
+  try {{ localStorage.setItem('solan-theme', root.dataset.theme); }} catch (e) {{}}
+  syncTheme();
+}});
+systemDark.addEventListener('change', syncTheme);
+syncTheme();
 const q = document.getElementById('q');
 const rows = [...document.querySelectorAll('.entry')];
 const none = document.getElementById('none');

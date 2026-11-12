@@ -50,3 +50,5 @@ Enable remote with -r parameter
 ## Support
 
 <a href="https://www.buymeacoffee.com/scapigliato" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/arial-black.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
+
+<a href="https://liberapay.com/Scapigliato/donate" target="_blank"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg" style="height: 51px !important;width: 217px !important;"></a>
