@@ -1,0 +1,32 @@
+[project]
+name = "solan"
+version = "0.1.1"
+description = "Share your files. Everywhere."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "AGPL-3.0-or-later"
+authors = [{ name = "Francesco Apruzzese", email = "cescoap@gmail.com" }]
+keywords = ["solan", "share", "sharing", "lan"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Communications :: File Sharing",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "click",
+    "pyngrok",
+]
+
+[project.urls]
+Homepage = "https://github.com/OpenCode/solan"
+
+[project.scripts]
+solan = "solan.core:run"
+
+[build-system]
+requires = ["uv_build>=0.8,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""

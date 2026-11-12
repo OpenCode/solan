@@ -107,3 +107,6 @@ crashlytics.properties
 crashlytics-build.properties
 
 .vscode
+
+# uv
+.venv/
