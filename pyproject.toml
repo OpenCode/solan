@@ -1,9 +1,9 @@
 [project]
 name = "solan"
-version = "1.0.1"
+version = "1.0.2"
 description = "Share your files. Everywhere."
 readme = "README.md"
-requires-python = ">=3.15"
+requires-python = ">=3.8"
 license = "AGPL-3.0-or-later"
 authors = [{ name = "Francesco Apruzzese", email = "cescoap@gmail.com" }]
 keywords = ["solan", "share", "sharing", "lan"]
@@ -12,6 +12,13 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Communications :: File Sharing",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
