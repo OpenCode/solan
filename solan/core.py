@@ -2,10 +2,21 @@
 # License GPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import click
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer
 from os import chdir
-from socket import gethostname, gethostbyname
+from socket import socket, AF_INET, SOCK_DGRAM
 from pyngrok import ngrok
+from solan.handler import SolanHandler
+
+
+def get_local_ip():
+    # Use the interface of the default route; UDP connect sends no packets
+    with socket(AF_INET, SOCK_DGRAM) as s:
+        try:
+            s.connect(('10.255.255.255', 1))
+            return s.getsockname()[0]
+        except OSError:
+            return '127.0.0.1'
 
 
 @click.command()
@@ -21,14 +32,13 @@ def run(directory, port, remote):
     click.echo('Running the server')
     # ----- Define server
     solan_server = HTTPServer
-    solan_handler = SimpleHTTPRequestHandler
+    solan_handler = SolanHandler
     solan_server_address = ('', port)
     httpd = solan_server(
         solan_server_address, solan_handler)
     # ----- Get local IP
-    hostname = gethostname()
-    ip = gethostbyname(hostname)
-    click.echo(f'Local service active on {ip}:{port}')
+    ip = get_local_ip()
+    click.echo(f'Local service active on http://{ip}:{port}')
     # ----- Enable remote access
     if remote:
         public_url = ngrok.connect(port)
