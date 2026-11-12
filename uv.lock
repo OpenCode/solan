@@ -1,0 +1,45 @@
+version = 1
+revision = 5
+requires-python = ">=3.15"
+
+[[package]]
+name = "click"
+version = "8.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/37/edbf1b0707709013c0cf2e8317e03d97ed29bf4cac709fe328904ae92a38/click-8.5.1.tar.gz", hash = "sha256:9bbfada76703fd1d784b83eea012e3e8c6a001a876543ef104fa56aaaeb072b4", size = 399151, upload-time = "2026-11-06T17:37:01.021Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl", hash = "sha256:8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37", size = 126163, upload-time = "2026-11-06T17:36:59.287Z" },
+]
+
+[[package]]
+name = "pyngrok"
+version = "9.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0f/9b/24053434d736f04b2e28904629a190919417f9594bdf0425545d1d7dcb43/pyngrok-9.1.4.tar.gz", hash = "sha256:1be456cd6118fe5a8bbce9a237bc17a81d8f20cfa7734a5b1db63a1dc4b7f2ab", size = 48642, upload-time = "2026-11-10T01:52:24.344Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/62/f44573594f86ced3cdc652e4e494e9f52b5e0ae4b9b4b6130c34208a6426/pyngrok-9.1.4-py3-none-any.whl", hash = "sha256:511a756a5f3feed60fa84af774bf9d75e2d3d31cb5738abe255e3fdca93bd2c1", size = 27974, upload-time = "2026-11-10T01:52:23.069Z" },
+]
+
+[[package]]
+name = "pyyaml"
+version = "6.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz", hash = "sha256:d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f", size = 130960, upload-time = "2025-09-25T21:33:16.546Z" }
+
+[[package]]
+name = "solan"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "click" },
+    { name = "pyngrok" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "click" },
+    { name = "pyngrok" },
+]

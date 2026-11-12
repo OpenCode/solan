@@ -4,9 +4,23 @@ Solan is a simple and basic system to share files with other people
 
 ## Installation
 
-Install Solan from Pipy
+Install Solan from Pypi
 
-    $ pip3 install solan
+    $ pipx install solan
+
+or install Solan as a command-line tool with [uv](https://docs.astral.sh/uv/)
+
+    $ uv tool install solan
+
+or run it without installing
+
+    $ uvx solan [path_to_share]
+
+### Development
+
+    $ git clone https://github.com/OpenCode/solan.git && cd solan
+    $ uv sync
+    $ uv run solan [path_to_share]
 
 ## Usage
 
@@ -31,7 +45,7 @@ Enable remote with -r parameter
 
 #### In action
 
-![solan usage](readme/solan-0.1.1.gif "Solan Usage")
+![solan usage](readme/solan-0.2.0.png "Solan Usage")
 
 ## Support
 
