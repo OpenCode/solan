@@ -26,12 +26,23 @@ def get_local_ip():
             return "127.0.0.1"
 
 
+class SolanServer(HTTPServer):
+    # On Windows SO_REUSEADDR lets a second server bind a port that is already in use,
+    # so "address already in use" would never be reported: enable it only elsewhere
+    allow_reuse_address = os.name != "nt"
+
+
 @contextmanager
 def silenced_stderr():
     # The ngrok process writes its own errors straight to stderr: send them to the void
     # while it starts (it inherits the redirection), solan reports them in a cleaner way
-    sys.stderr.flush()
-    saved = os.dup(2)
+    try:
+        sys.stderr.flush()
+        saved = os.dup(2)
+    except (AttributeError, OSError, ValueError):
+        # No usable stderr (e.g. detached process): nothing to silence
+        yield
+        return
     try:
         with open(os.devnull, "w") as devnull:
             os.dup2(devnull.fileno(), 2)
@@ -51,7 +62,7 @@ def run(directory, port, remote):
     os.chdir(directory)
     click.echo("Running the server")
     # ----- Define server
-    solan_server = HTTPServer
+    solan_server = SolanServer
     solan_handler = SolanHandler
     solan_server_address = ("", port)
     try:
@@ -82,4 +93,9 @@ def run(directory, port, remote):
             raise click.ClickException(f"ngrok could not start: {details.splitlines()[0]}") from None
         click.echo(f"Remote service active on {public_url}")
     # ----- Run server
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        click.echo("\nStopped")
+    finally:
+        httpd.server_close()

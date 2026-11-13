@@ -1,6 +1,6 @@
 [project]
 name = "solan"
-version = "1.1.0"
+version = "1.2.0"
 description = "Share your files. Everywhere."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -38,3 +38,8 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-root = ""
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]

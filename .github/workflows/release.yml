@@ -1,8 +1,10 @@
 name: Release
 
-# Every time a pull request is merged into master:
-#  1. build the wheel and sdist and publish them as a GitHub Release
-#  2. upload the same files to PyPI (only when step 1 created a new release)
+# Every time a pull request is merged into master, if the version in pyproject.toml is new:
+#  1. build the wheel and sdist
+#  2. build the Windows (.exe) and macOS (.pkg) installers
+#  3. publish everything as a GitHub Release
+#  4. upload the wheel and sdist to PyPI
 on:
   pull_request:
     types: [closed]
@@ -12,13 +14,13 @@ permissions:
   contents: read
 
 jobs:
-  release:
+  build:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     outputs:
-      created: ${{ steps.publish.outputs.created }}
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+      new: ${{ steps.version.outputs.new }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,43 +28,147 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
-      - name: Build wheel and sdist
-        run: uv build
-
-      - name: Read version
+      - name: Check version
         id: version
-        run: echo "tag=v$(uv version --short)" >> "$GITHUB_OUTPUT"
-
-      - name: Publish GitHub Release
-        id: publish
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "::warning::Release $TAG already exists. Bump the version in pyproject.toml to publish a new one."
-            echo "created=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          VERSION="$(uv version --short)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "::warning::Release v$VERSION already exists. Bump the version in pyproject.toml to publish a new one."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
           fi
-          gh release create "$TAG" dist/* \
-            --target "${{ github.event.pull_request.merge_commit_sha }}" \
-            --title "$TAG" \
-            --notes "$PR_TITLE ($PR_URL)" \
-            --generate-notes
-          echo "created=true" >> "$GITHUB_OUTPUT"
 
-      - name: Keep built packages for PyPI
-        if: steps.publish.outputs.created == 'true'
-        uses: actions/upload-artifact@v4
+      - name: Build wheel and sdist
+        if: steps.version.outputs.new == 'true'
+        run: uv build
+
+      - uses: actions/upload-artifact@v4
+        if: steps.version.outputs.new == 'true'
         with:
           name: dist
           path: dist/
 
+  installers:
+    needs: build
+    if: needs.build.outputs.new == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: macos-latest
+            name: macos
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - uses: astral-sh/setup-uv@v6
+
+      # A single executable with Python inside: users don't need Python installed
+      - name: Build standalone executable
+        run: uv run --with pyinstaller pyinstaller --onefile --name solan solan.py
+
+      - name: Build Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+            "/DAppVersion=$env:VERSION" `
+            "/DSourceExe=$PWD\dist\solan.exe" `
+            "/DOutputDir=$PWD\installers" `
+            installer\windows\solan.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Check Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem installers\*.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES" -Wait
+          & "$env:LOCALAPPDATA\Programs\Solan\solan.exe" --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Check "Share with Solan" menu entry
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Run the exact command Explorer would run, on a folder with a space in its name
+          $command = (Get-ItemProperty "HKCU:\Software\Classes\Directory\shell\Solan\command").'(default)'
+          $folder = New-Item -ItemType Directory -Force "$env:RUNNER_TEMP\Foto vacanze"
+          Set-Content "$folder\hello.txt" "hello"
+          Write-Host "Command: $command"
+          $line = $command.Replace("%V", $folder.FullName) -replace '^cmd\.exe /k ', ''
+          $cmd = Start-Process cmd.exe -ArgumentList "/k $line" -PassThru -WindowStyle Hidden
+          $ok = $false
+          foreach ($i in 1..50) {
+            try {
+              $page = Invoke-WebRequest "http://127.0.0.1:8000/" -UseBasicParsing -TimeoutSec 2
+              if ($page.Content -match "hello.txt") { $ok = $true; break }
+            } catch { Start-Sleep -Milliseconds 300 }
+          }
+          taskkill /T /F /PID $cmd.Id | Out-Null
+          if (-not $ok) { Write-Error "solan did not serve the folder from the menu command"; exit 1 }
+          Get-ItemProperty "HKCU:\Software\Classes\Directory\Background\shell\Solan\command" | Out-Null
+
+      - name: Build macOS installer
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p pkgroot/usr/local/bin installers
+          cp dist/solan pkgroot/usr/local/bin/solan
+          chmod 755 pkgroot/usr/local/bin/solan
+          pkgbuild --root pkgroot --install-location / \
+            --identifier com.github.opencode.solan --version "$VERSION" \
+            "installers/solan-$VERSION-macos-$(uname -m).pkg"
+
+      - name: Check macOS installer
+        if: runner.os == 'macOS'
+        run: |
+          sudo installer -pkg installers/*.pkg -target /
+          /usr/local/bin/solan --help
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.name }}
+          path: installers/
+
+  release:
+    needs: [build, installers]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: files/
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          ls -l files/
+          gh release create "$TAG" files/* \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.event.pull_request.merge_commit_sha }}" \
+            --title "$TAG" \
+            --notes "$PR_TITLE ($PR_URL)" \
+            --generate-notes
+
   pypi:
     needs: release
-    if: needs.release.outputs.created == 'true'
     runs-on: ubuntu-latest
     # Trusted publishing: no API token, PyPI trusts this workflow via OIDC
     environment:
