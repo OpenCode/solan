@@ -1,0 +1,35 @@
+name: Test
+
+# Run the end-to-end tests on Linux, Windows and macOS,
+# with the oldest and the newest supported Python.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.8", "3.15"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Lint
+        if: matrix.python == '3.15'
+        run: |
+          uvx ruff check .
+          uvx ruff format --check .
+
+      - name: Test
+        env:
+          SOLAN_TEST_NGROK: "1"
+        run: uv run --python ${{ matrix.python }} pytest -v
